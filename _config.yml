@@ -24,19 +24,19 @@ description: >- # used by seo meta and the atom feed
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
-url: "https://robothwang.github.io"
+url: "https://jayrobotics.github.io"
 
 github:
-  username: robothwang # change to your GitHub username
+  username: JayRobotics # change to your GitHub username
 
 twitter:
-  username: robothwang # change to your Twitter username
+  username: JayRobotics # change to your Twitter username
 
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
   name: JaeJin Hwang
-  email: jeajin747@gmail.com # change to your email address
+  email: hjj747@pukyong.ac.kr # change to your email address
   links:
     # The first element serves as the copyright owner's link
     - https://twitter.com/username # change to your Twitter homepage
@@ -116,10 +116,10 @@ comments:
     shortname: # fill with the Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
   # utterances settings › https://utteranc.es/
   utterances:
-    repo: "robothwang/robothwang.github.io" # <gh-username>/<repo>
+    repo: "JayRobotics/jayrobotics.github.io" # <gh-username>/<repo>
     issue_term: "pathname" # < url | pathname | title | ...>
     label: "Comments"
-    theme: "boxy-light"
+    theme: "github-light"
   # Giscus options › https://giscus.app
   giscus:
     repo: # <gh-username>/<repo>
