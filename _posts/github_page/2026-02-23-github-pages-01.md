@@ -7,8 +7,8 @@ comments: true
 math: true
 toc: true
 #pin: true
-#image:
-  #path: thumbnail.png
+image:
+  path: /assets/images/github-pages/github_pages_logo.jpg
   #alt: image alternative text
 ---
 

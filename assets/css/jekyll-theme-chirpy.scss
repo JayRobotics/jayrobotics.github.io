@@ -1,0 +1,139 @@
+---
+---
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+
+/* Same-category post list shown below each post. */
+.post-neighbors {
+  margin-bottom: 2rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 0.25rem;
+  background: var(--card-bg);
+  color: var(--text-muted-color);
+}
+
+.post-neighbors-header,
+.post-neighbors-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+}
+
+.post-neighbors-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-muted-color);
+}
+
+.post-neighbors-header a,
+.post-neighbors-footer a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.post-neighbors-all {
+  flex: none;
+  font-size: 0.9rem;
+}
+
+.post-neighbor-list {
+  border-top: 1px solid var(--main-border-color);
+  border-bottom: 1px solid var(--main-border-color);
+}
+
+/* One list row: title on the left, date on the right. */
+.post-neighbor-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 0.75rem;
+  align-items: center;
+  min-height: 2.45rem;
+  padding: 0.55rem 1rem;
+  color: var(--text-muted-color);
+  text-decoration: none;
+}
+
+.post-neighbor-row + .post-neighbor-row {
+  border-top: 1px solid var(--main-border-color);
+}
+
+.post-neighbor-row:hover {
+  background: var(--card-hover-bg);
+  color: var(--link-color);
+}
+
+.post-neighbor-row.current .post-neighbor-title {
+  color: var(--link-color);
+  font-weight: 600;
+}
+
+/* Keep long post titles on one clean line. */
+.post-neighbor-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-neighbor-current {
+  margin-left: 0.35rem;
+  color: var(--link-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.post-neighbor-date {
+  color: var(--text-muted-color);
+  font-size: 0.85rem;
+}
+
+.post-neighbors-footer {
+  justify-content: center;
+}
+
+/* These buttons page the list only; they do not navigate between posts. */
+.post-neighbor-page-btn {
+  border: 0;
+  background: transparent;
+  color: var(--link-color);
+  padding: 0.25rem 0.5rem;
+}
+
+.post-neighbor-page-btn:disabled {
+  color: var(--text-muted-color);
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.post-neighbor-page-status {
+  color: var(--text-muted-color);
+  font-size: 0.85rem;
+  min-width: 3rem;
+  text-align: center;
+}
+
+/* On small screens, hide dates so titles have enough space. */
+@media (width < 576px) {
+  .post-neighbors-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .post-neighbor-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .post-neighbor-date {
+    display: none;
+  }
+}
