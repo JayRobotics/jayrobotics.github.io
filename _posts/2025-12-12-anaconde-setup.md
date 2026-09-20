@@ -1,8 +1,8 @@
 ---
 title: "[Anaconda] Jupyter Notebook 가상환경 설정"
 date: 2025-12-12 19:02:00 +0900
-categories: [setup]
-tags: [anaconda, anaconde prompt, jupyter notebook, kernel, programming]
+categories: [Setup]
+tags: [Anaconda, Anaconda Prompt, jupyter notebook, kernel, programming]
 comments: true
 math: true
 toc: true
@@ -21,28 +21,24 @@ conda 명령어로 venv1이라는 이름의 pyhton 3.8 버전을 사용하는 �
 ```bash
 conda create -n venv1 python=3.8
 ```
-<br>
 
 ## **2. 가상환경 활성화 하기**
 앞에서 생성한 venv1를 활성화 한다.  
 ```bash
 conda activate venv1
 ```
-<br>
 
 ## **3. ipykernel 설치하기**
 ipykernel을 설치한다.
 ```bash
 pip install ipykernel
 ```
-<br>
 
 ## **4. 커널 추가하기**
 앞에서 설치한 ipykernel을 이용해서 가상환경 venv1을 jupyter notebook의 커널로 추가한다.
 ```bash
 python -m ipykernel install --user --name=venv1
 ```
-<br>
 
 ## **5. 기타 명령어**
 anaconda 가상환경 리스트 확인
@@ -69,7 +65,6 @@ jupyter notebook에 추가된 커널 삭제
 ```bash
 jupyter kernelspec uninstall [kernel_name]
 ```
-<br>
 
 ## **6. 궁금한 점**
 > **Q.가상환경을 만들어서 사용하는 이유는 무엇인가?**
