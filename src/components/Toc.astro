@@ -3,33 +3,33 @@ import type { MarkdownHeading } from 'astro';
 
 interface Props {
   headings: MarkdownHeading[];
-  /** The rail copy is the one that tracks scrolling. */
-  tracking?: boolean;
+  /**
+   * `rail`  - the static column in the right gutter on wide screens.
+   * `edge`  - dashes pinned to the window edge that open on hover, for
+   *           viewports with no gutter to spare (portrait monitors, laptops).
+   * `plain` - a normal list, used inside the <details> fallback on touch.
+   */
+  variant?: 'rail' | 'edge' | 'plain';
   class?: string;
 }
 
-const { headings, tracking = false, class: className } = Astro.props;
+const { headings, variant = 'plain', class: className } = Astro.props;
 
 // h2 and h3 only. Deeper levels make the list taller than the screen.
 const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+const wrapperClass = variant === 'edge' ? 'toc-edge' : variant === 'rail' ? 'toc-rail' : 'toc-plain';
 ---
 
 {
   items.length > 1 && (
-    <nav aria-label="목차" class={className} data-toc={tracking ? 'tracking' : undefined}>
-      <ul class="space-y-1 text-sm">
+    <nav aria-label="목차" class:list={[wrapperClass, className]}>
+      <ul>
         {items.map((h) => (
           <li>
-            <a
-              href={`#${h.slug}`}
-              data-toc-link={h.slug}
-              class:list={[
-                'block border-s-2 py-0.5 transition-colors',
-                h.depth === 3 ? 'ps-5' : 'ps-3',
-                'border-transparent text-[var(--text-muted)] hover:text-[var(--accent)]',
-              ]}
-            >
-              {h.text}
+            <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug} data-depth={h.depth}>
+              <span class="toc-dash" aria-hidden="true" />
+              <span class="toc-text">{h.text}</span>
             </a>
           </li>
         ))}
@@ -39,47 +39,43 @@ const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
 }
 
 <script>
-  // Highlights the section being read. IntersectionObserver rather than a
-  // scroll listener: no work on frames where nothing crossed.
-  const rail = document.querySelector('[data-toc="tracking"]');
-  if (rail) {
-    const links = new Map<string, HTMLAnchorElement>();
-    for (const a of rail.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')) {
-      links.set(a.dataset.tocLink!, a);
+  // One observer drives every copy of the list on the page, so the rail and
+  // the edge dashes never disagree about where the reader is.
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
+  if (links.length > 0) {
+    const bySlug = new Map<string, HTMLAnchorElement[]>();
+    for (const a of links) {
+      const slug = a.dataset.tocLink!;
+      const list = bySlug.get(slug);
+      if (list) list.push(a);
+      else bySlug.set(slug, [a]);
     }
 
-    const headings = [...links.keys()]
+    const headings = [...bySlug.keys()]
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
-    const ACTIVE = ['!border-[var(--accent)]', '!text-[var(--accent)]'];
-    let current: HTMLAnchorElement | null = null;
-
+    let active: string | null = null;
     const setActive = (slug: string) => {
-      const next = links.get(slug);
-      if (!next || next === current) return;
-      current?.classList.remove(...ACTIVE);
-      next.classList.add(...ACTIVE);
-      current = next;
+      if (slug === active) return;
+      if (active) for (const a of bySlug.get(active) ?? []) a.classList.remove('is-active');
+      for (const a of bySlug.get(slug) ?? []) a.classList.add('is-active');
+      active = slug;
     };
 
-    // Only the top fifth of the viewport counts as "being read", so the
-    // highlight advances as a heading reaches the top rather than the middle.
-    const seen = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) seen.add(entry.target.id);
-          else seen.delete(entry.target.id);
-        }
-        // Headings above the line are the ones already passed; take the last.
-        const passed = headings.filter((h) => h.getBoundingClientRect().top < 120);
-        const active = passed.at(-1)?.id ?? headings[0]?.id;
-        if (active) setActive(active);
-      },
-      { rootMargin: '-100px 0px -80% 0px', threshold: 0 },
-    );
+    // IntersectionObserver rather than a scroll listener: nothing runs on
+    // frames where no heading crossed the line.
+    const update = () => {
+      const passed = headings.filter((h) => h.getBoundingClientRect().top < 120);
+      const slug = passed.at(-1)?.id ?? headings[0]?.id;
+      if (slug) setActive(slug);
+    };
 
+    const observer = new IntersectionObserver(update, {
+      rootMargin: '-100px 0px -75% 0px',
+      threshold: 0,
+    });
     for (const h of headings) observer.observe(h);
+    update();
   }
 </script>

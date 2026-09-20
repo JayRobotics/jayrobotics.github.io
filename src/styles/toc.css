@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Table of contents
+
+   Three presentations of one list, chosen by how much room the viewport has:
+
+   - .toc-rail  a static column in the right gutter, from 1200px up.
+   - .toc-edge  dashes pinned to the window edge that open on hover, for
+                anything narrower with a real pointer. A portrait monitor has
+                no gutter to give, so this costs no layout width at all.
+   - .toc-plain a normal list, inside the <details> that touch devices get
+                because they cannot hover.
+   ========================================================================== */
+
+.toc-link {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.18s ease;
+}
+
+.toc-link:hover {
+  color: var(--accent);
+}
+
+.toc-link.is-active {
+  color: var(--accent);
+}
+
+/* --- Rail and plain ------------------------------------------------------- */
+
+.toc-rail ul,
+.toc-plain ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.toc-rail .toc-dash,
+.toc-plain .toc-dash {
+  display: none;
+}
+
+.toc-rail .toc-link {
+  padding-block: 0.15rem;
+  border-inline-start: 2px solid transparent;
+  padding-inline-start: 0.75rem;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.toc-rail .toc-link[data-depth='3'] {
+  padding-inline-start: 1.5rem;
+}
+
+.toc-rail .toc-link.is-active {
+  border-inline-start-color: var(--accent);
+}
+
+.toc-plain .toc-link[data-depth='3'] {
+  padding-inline-start: 1rem;
+}
+
+/* --- Edge ----------------------------------------------------------------- */
+
+.toc-edge {
+  position: fixed;
+  inset-inline-end: 0;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  z-index: 40;
+  display: none;
+  max-height: 70dvh;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-inline-end: 0;
+  border-start-start-radius: 0.6rem;
+  border-end-start-radius: 0.6rem;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Only where the rail cannot fit and the pointer can actually hover. Touch
+   devices fall through to the <details> list instead. */
+@media (width < 75rem) and (hover: hover) and (pointer: fine) {
+  .toc-edge {
+    display: block;
+  }
+}
+
+.toc-edge ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  align-items: flex-end;
+}
+
+.toc-edge .toc-link {
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.toc-edge .toc-dash {
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.45;
+  transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+.toc-edge .toc-link[data-depth='2'] .toc-dash {
+  width: 1rem;
+}
+
+.toc-edge .toc-link[data-depth='3'] .toc-dash {
+  width: 0.6rem;
+}
+
+.toc-edge .toc-link.is-active .toc-dash {
+  opacity: 1;
+}
+
+.toc-edge .toc-text {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  transition: max-width 0.2s ease, opacity 0.2s ease;
+}
+
+/* focus-within keeps it reachable by keyboard, not just by pointer. */
+.toc-edge:hover,
+.toc-edge:focus-within {
+  background: var(--bg);
+  border-color: var(--border);
+  box-shadow: -6px 0 28px rgb(0 0 0 / 10%);
+  overflow-y: auto;
+}
+
+.toc-edge:hover .toc-text,
+.toc-edge:focus-within .toc-text {
+  max-width: 15rem;
+  opacity: 1;
+}
+
+.toc-edge:hover .toc-dash,
+.toc-edge:focus-within .toc-dash {
+  width: 0.45rem;
+  opacity: 0.3;
+}
+
+[data-theme='dark'] .toc-edge:hover,
+[data-theme='dark'] .toc-edge:focus-within {
+  box-shadow: -6px 0 28px rgb(0 0 0 / 45%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-link,
+  .toc-edge,
+  .toc-edge .toc-dash,
+  .toc-edge .toc-text {
+    transition: none;
+  }
+}
+
+/* The <details> list is the fallback for pointers that cannot hover. Anywhere
+   the rail or the edge dashes are available it would be a third copy. */
+.toc-details {
+  display: none;
+}
+
+@media (width < 75rem) and (not ((hover: hover) and (pointer: fine))) {
+  .toc-details {
+    display: block;
+  }
+}

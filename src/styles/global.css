@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './toc.css';
 
 /* Chirpy toggled `html[data-mode]`; this keeps a manual switch possible while
    still following the OS by default. The inline script in BaseLayout resolves
