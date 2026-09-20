@@ -1,12 +1,11 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
 import HomeBody from '../components/HomeBody.astro';
-import { getPosts, POSTS_PER_PAGE } from '../lib/posts';
+import { getPosts } from '../lib/posts';
 
 const all = await getPosts();
-const totalPages = Math.ceil(all.length / POSTS_PER_PAGE);
 ---
 
 <PageLayout title="Real Robot">
-  <HomeBody posts={all.slice(0, POSTS_PER_PAGE)} all={all} page={1} totalPages={totalPages} />
+  <HomeBody all={all} page={1} />
 </PageLayout>

@@ -4,49 +4,129 @@ import { categoryLabels } from '../data/categoryLabels';
 
 interface Props {
   posts: Post[];
+  /** Rows per page. Omit for a list that shows everything at once. */
+  pageSize?: number;
+  /** Which page is showing on load. /page2/ opens on its own page. */
+  initialPage?: number;
   showPin?: boolean;
 }
 
-const { posts, showPin = true } = Astro.props;
+const { posts, pageSize, initialPage = 1, showPin = true } = Astro.props;
+
+/*
+  Every post is in the markup and the pager only changes which rows are shown.
+  Paging the list used to be a page load, which threw away the reader's place
+  on the home page just to move five rows. The /pageN/ routes still exist, and
+  still serve, because they are part of the URL manifest; they open on their
+  own page and page in place from there like anywhere else.
+*/
+const paginated = typeof pageSize === 'number' && posts.length > pageSize;
+const totalPages = paginated ? Math.ceil(posts.length / pageSize) : 1;
+const pageOf = (index: number) => (paginated ? Math.floor(index / pageSize) + 1 : 1);
 ---
 
-<nav class="border-t border-[var(--border)]" aria-label="글 목록">
-  {
-    posts.map((post) => {
-      const category = post.data.categories[0];
-      return (
-        <a
-          href={`/posts/${post.id}/`}
-          class="grid grid-cols-[max-content_1fr] items-center gap-x-3 gap-y-1 border-b border-[var(--border)] px-1 py-3 transition-colors hover:bg-[var(--surface)] sm:grid-cols-[max-content_4.5rem_1fr] sm:gap-x-4"
-        >
-          <time
-            datetime={post.data.date.toISOString()}
-            class="num text-[0.82rem] text-[var(--text-muted)]"
+<div data-post-list data-total-pages={totalPages} data-page={initialPage}>
+  <nav class="border-t border-[var(--border)]" aria-label="글 목록">
+    {
+      posts.map((post, index) => {
+        const category = post.data.categories[0];
+        const page = pageOf(index);
+        return (
+          <a
+            href={`/posts/${post.id}/`}
+            data-row-page={page}
+            hidden={page !== initialPage}
+            class="grid grid-cols-[max-content_1fr] items-center gap-x-3 gap-y-1 border-b border-[var(--border)] px-1 py-3 transition-colors hover:bg-[var(--surface)] sm:grid-cols-[max-content_4.5rem_1fr] sm:gap-x-4"
           >
-            {formatDate(post.data.date)}
-          </time>
+            <time
+              datetime={post.data.date.toISOString()}
+              class="num text-[0.82rem] text-[var(--text-muted)]"
+            >
+              {formatDate(post.data.date)}
+            </time>
 
-          {category ? (
-            <span class="num justify-self-start border-s-2 border-[var(--border-strong)] ps-2 text-[0.72rem] tracking-wide whitespace-nowrap text-[var(--text-muted)] uppercase">
-              {categoryLabels[category] ?? category}
-            </span>
-          ) : (
-            <span aria-hidden="true" />
-          )}
-
-          <span
-            class="col-span-2 text-[var(--text)] sm:col-span-1 sm:truncate"
-            style="word-break: keep-all"
-          >
-            {stripSeriesPrefix(post.data.title)}
-            {showPin && post.data.pin && (
-              <span class="ms-1 text-xs text-[var(--accent)]" title="고정된 글">
-                ★
+            {category ? (
+              <span class="num justify-self-start border-s-2 border-[var(--border-strong)] ps-2 text-[0.72rem] tracking-wide whitespace-nowrap text-[var(--text-muted)] uppercase">
+                {categoryLabels[category] ?? category}
               </span>
+            ) : (
+              <span aria-hidden="true" />
             )}
-          </span>
-        </a>
-      );
-    })
+
+            <span
+              class="col-span-2 text-[var(--text)] sm:col-span-1 sm:truncate"
+              style="word-break: keep-all"
+            >
+              {stripSeriesPrefix(post.data.title)}
+              {showPin && post.data.pin && (
+                <span class="ms-1 text-xs text-[var(--accent)]" title="고정된 글">
+                  ★
+                </span>
+              )}
+            </span>
+          </a>
+        );
+      })
+    }
+  </nav>
+
+  {
+    paginated && (
+      <nav class="mt-8 flex items-center justify-between text-sm" aria-label="페이지">
+        <button
+          type="button"
+          data-page-prev
+          class="text-[var(--accent)] transition-colors disabled:cursor-default disabled:text-[var(--text-muted)] disabled:opacity-40"
+        >
+          이전
+        </button>
+
+        <span class="num text-[var(--text-muted)]" aria-live="polite">
+          <span data-page-current>{initialPage}</span> / {totalPages}
+        </span>
+
+        <button
+          type="button"
+          data-page-next
+          class="text-[var(--accent)] transition-colors disabled:cursor-default disabled:text-[var(--text-muted)] disabled:opacity-40"
+        >
+          다음
+        </button>
+      </nav>
+    )
   }
-</nav>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-post-list]')) {
+    const total = Number(root.dataset.totalPages);
+    if (!Number.isFinite(total) || total < 2) continue;
+
+    const rows = [...root.querySelectorAll<HTMLElement>('[data-row-page]')];
+    const prev = root.querySelector<HTMLButtonElement>('[data-page-prev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-page-next]');
+    const label = root.querySelector<HTMLElement>('[data-page-current]');
+    if (!prev || !next || !label) continue;
+
+    let current = Number(root.dataset.page) || 1;
+
+    const render = () => {
+      for (const row of rows) row.hidden = Number(row.dataset.rowPage) !== current;
+      prev.disabled = current === 1;
+      next.disabled = current === total;
+      label.textContent = String(current);
+    };
+
+    const go = (page: number) => {
+      current = Math.min(Math.max(page, 1), total);
+      render();
+      // Back to the top of the list, not the top of the document: the reader
+      // asked for the next five rows, not to leave where they were.
+      root.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+
+    prev.addEventListener('click', () => go(current - 1));
+    next.addEventListener('click', () => go(current + 1));
+    render();
+  }
+</script>

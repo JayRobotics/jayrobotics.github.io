@@ -1,18 +1,16 @@
 ---
 import PostList from './PostList.astro';
 import SeriesShelf from './SeriesShelf.astro';
-import { groupByCategory, type Post } from '../lib/posts';
+import { groupByCategory, POSTS_PER_PAGE, type Post } from '../lib/posts';
 
 interface Props {
-  /** The posts on this page of the list. */
-  posts: Post[];
-  /** Every post, for the category counts and the shelf. */
+  /** Every post. The list pages in place rather than by navigation. */
   all: Post[];
+  /** Which page of the list opens first. /page2/ opens on its own. */
   page: number;
-  totalPages: number;
 }
 
-const { posts, all, page, totalPages } = Astro.props;
+const { all, page } = Astro.props;
 
 const categories = groupByCategory(all);
 
@@ -23,7 +21,6 @@ const shelfName = byDate[0]?.data.categories[0];
 const shelf = categories.find((c) => c.name === shelfName);
 const latest = byDate[0];
 
-const pageHref = (n: number) => (n === 1 ? '/' : `/page${n}/`);
 ---
 
 {
@@ -84,31 +81,5 @@ const pageHref = (n: number) => (n === 1 ? '/' : `/page${n}/`);
     </a>
   </div>
 
-  <PostList posts={posts} />
+  <PostList posts={all} pageSize={POSTS_PER_PAGE} initialPage={page} />
 </section>
-
-{
-  totalPages > 1 && (
-    <nav class="mt-8 flex items-center justify-between text-sm" aria-label="페이지">
-      {page > 1 ? (
-        <a href={pageHref(page - 1)} class="text-[var(--accent)]">
-          이전
-        </a>
-      ) : (
-        <span class="text-[var(--text-muted)] opacity-50">이전</span>
-      )}
-
-      <span class="num text-[var(--text-muted)]">
-        {page} / {totalPages}
-      </span>
-
-      {page < totalPages ? (
-        <a href={pageHref(page + 1)} class="text-[var(--accent)]">
-          다음
-        </a>
-      ) : (
-        <span class="text-[var(--text-muted)] opacity-50">다음</span>
-      )}
-    </nav>
-  )
-}

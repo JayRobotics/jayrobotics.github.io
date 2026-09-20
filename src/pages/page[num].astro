@@ -3,29 +3,24 @@ import PageLayout from '../layouts/PageLayout.astro';
 import HomeBody from '../components/HomeBody.astro';
 import { getPosts, POSTS_PER_PAGE } from '../lib/posts';
 
-// Jekyll paginated to /page2/, not /page/2/. A param inside the filename
-// reproduces that exactly; page 1 stays at the site root.
+/*
+  Jekyll served /page2/ rather than /page/2/, and those URLs are part of the
+  manifest, so the routes stay. They are the same page opened further down the
+  list; paging from there happens in place, as it does on the home page.
+*/
 export async function getStaticPaths() {
   const all = await getPosts();
   const totalPages = Math.ceil(all.length / POSTS_PER_PAGE);
 
-  return Array.from({ length: totalPages - 1 }, (_, i) => {
-    const page = i + 2;
-    return {
-      params: { num: String(page) },
-      props: {
-        all,
-        page,
-        totalPages,
-        posts: all.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE),
-      },
-    };
-  });
+  return Array.from({ length: totalPages - 1 }, (_, i) => ({
+    params: { num: String(i + 2) },
+    props: { all, page: i + 2 },
+  }));
 }
 
-const { posts, all, page, totalPages } = Astro.props;
+const { all, page } = Astro.props;
 ---
 
 <PageLayout title={`Real Robot - ${page}페이지`}>
-  <HomeBody posts={posts} all={all} page={page} totalPages={totalPages} />
+  <HomeBody all={all} page={page} />
 </PageLayout>
