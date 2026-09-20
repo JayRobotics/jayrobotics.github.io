@@ -51,19 +51,6 @@ const posted = formatDate(post.data.date);
         </div>
       </header>
 
-      <!-- Narrower than the `toc` breakpoint there is no gutter, so it collapses. -->
-      {
-        post.data.toc && (
-          <details
-            class="toc-details mb-10 rounded border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
-          >
-            <summary class="cursor-pointer text-sm font-medium text-[var(--text-muted)]">
-              목차
-            </summary>
-            <Toc headings={headings} variant="plain" class="mt-3" />
-          </details>
-        )
-      }
 
       <article class="prose">
         <Content />
@@ -90,14 +77,14 @@ const posted = formatDate(post.data.date);
         <aside class="hidden toc:block">
           <div class="sticky top-8 max-h-[calc(100dvh-6rem)] overflow-y-auto pb-6">
             <p class="mb-3 text-sm font-semibold text-[var(--heading)]">목차</p>
-            <Toc headings={headings} variant="rail" />
+            <Toc headings={headings} body={post.body} variant="rail" />
           </div>
         </aside>
       )
     }
   </div>
 
-  {post.data.toc && <Toc headings={headings} variant="edge" />}
+  {post.data.toc && <Toc headings={headings} body={post.body} variant="edge" />}
 
   <footer class="mx-auto w-full max-w-7xl px-4 pb-10 text-sm text-[var(--text-muted)]">
     <p>&copy; {new Date().getFullYear()} JaeJin Hwang</p>

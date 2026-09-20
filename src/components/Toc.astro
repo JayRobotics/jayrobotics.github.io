@@ -1,33 +1,44 @@
 ---
 import type { MarkdownHeading } from 'astro';
+import { tocHeadings } from '../lib/headings';
 
 interface Props {
   headings: MarkdownHeading[];
+  /** Raw markdown, used to recover heading text that KaTeX mangled. */
+  body?: string;
   /**
-   * `rail`  - the static column in the right gutter on wide screens.
-   * `edge`  - dashes pinned to the window edge that open on hover, for
-   *           viewports with no gutter to spare (portrait monitors, laptops).
-   * `plain` - a normal list, used inside the <details> fallback on touch.
+   * `rail` - the static column in the right gutter on wide screens.
+   * `edge` - dashes pinned to the window edge that open on hover or tap, for
+   *          viewports with no gutter to spare.
    */
-  variant?: 'rail' | 'edge' | 'plain';
+  variant: 'rail' | 'edge';
   class?: string;
 }
 
-const { headings, variant = 'plain', class: className } = Astro.props;
+const { headings, body, variant, class: className } = Astro.props;
 
-// h2 and h3 only. Deeper levels make the list taller than the screen.
-const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const items = tocHeadings(headings, body);
 
-const wrapperClass = variant === 'edge' ? 'toc-edge' : variant === 'rail' ? 'toc-rail' : 'toc-plain';
+// Posts are inconsistent about depth: the RL series goes h2 -> h4 while the
+// algorithm posts go h2 -> h3, for the same "1-1" level of sub-section.
+// Indenting by raw depth would push one of them in twice as far as the other,
+// so rank the depths that actually occur and indent by that instead.
+const present = [...new Set(items.map((h) => h.depth))].sort((a, b) => a - b);
+const levelOf = (depth: number) => present.indexOf(depth);
 ---
 
 {
   items.length > 1 && (
-    <nav aria-label="목차" class:list={[wrapperClass, className]}>
+    <nav aria-label="목차" class:list={[variant === 'edge' ? 'toc-edge' : 'toc-rail', className]}>
       <ul>
         {items.map((h) => (
           <li>
-            <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug} data-depth={h.depth}>
+            <a
+              href={`#${h.slug}`}
+              class="toc-link"
+              data-toc-link={h.slug}
+              data-level={levelOf(h.depth)}
+            >
               <span class="toc-dash" aria-hidden="true" />
               <span class="toc-text">{h.text}</span>
             </a>
@@ -39,8 +50,8 @@ const wrapperClass = variant === 'edge' ? 'toc-edge' : variant === 'rail' ? 'toc
 }
 
 <script>
-  // One observer drives every copy of the list on the page, so the rail and
-  // the edge dashes never disagree about where the reader is.
+  // One observer drives every copy of the list, so the rail and the edge
+  // dashes cannot disagree about where the reader is.
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
   if (links.length > 0) {
     const bySlug = new Map<string, HTMLAnchorElement[]>();
@@ -56,19 +67,13 @@ const wrapperClass = variant === 'edge' ? 'toc-edge' : variant === 'rail' ? 'toc
       .filter((el): el is HTMLElement => el !== null);
 
     let active: string | null = null;
-    const setActive = (slug: string) => {
-      if (slug === active) return;
-      if (active) for (const a of bySlug.get(active) ?? []) a.classList.remove('is-active');
-      for (const a of bySlug.get(slug) ?? []) a.classList.add('is-active');
-      active = slug;
-    };
-
-    // IntersectionObserver rather than a scroll listener: nothing runs on
-    // frames where no heading crossed the line.
     const update = () => {
       const passed = headings.filter((h) => h.getBoundingClientRect().top < 120);
       const slug = passed.at(-1)?.id ?? headings[0]?.id;
-      if (slug) setActive(slug);
+      if (!slug || slug === active) return;
+      if (active) for (const a of bySlug.get(active) ?? []) a.classList.remove('is-active');
+      for (const a of bySlug.get(slug) ?? []) a.classList.add('is-active');
+      active = slug;
     };
 
     const observer = new IntersectionObserver(update, {
@@ -77,5 +82,22 @@ const wrapperClass = variant === 'edge' ? 'toc-edge' : variant === 'rail' ? 'toc
     });
     for (const h of headings) observer.observe(h);
     update();
+  }
+
+  // Touch has no hover, so the dashes would never open. There the first tap
+  // opens the panel instead of following a link; taps after that behave
+  // normally, and a tap outside closes it.
+  const edge = document.querySelector<HTMLElement>('.toc-edge');
+  if (edge && !matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    edge.addEventListener('click', (event) => {
+      if (!edge.classList.contains('is-open')) {
+        event.preventDefault();
+        edge.classList.add('is-open');
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!edge.contains(event.target as Node)) edge.classList.remove('is-open');
+    });
   }
 </script>
