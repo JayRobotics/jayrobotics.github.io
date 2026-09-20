@@ -70,6 +70,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       // Private browsing can refuse writes; the toggle still works for this page.
     }
     paint();
+    // The comment iframe cannot see our data attribute, so it is told.
+    document.dispatchEvent(new CustomEvent('themechange', { detail: next }));
   });
 
   paint();

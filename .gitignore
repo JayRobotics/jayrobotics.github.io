@@ -1,19 +1,6 @@
-# Bundler cache
-.bundle
-vendor
-Gemfile.lock
-
 # Astro build output
 dist
 .astro
-
-# Jekyll cache
-.jekyll-cache
-.jekyll-metadata
-_site
-
-# RubyGems
-*.gem
 
 # NPM dependencies
 node_modules
@@ -24,10 +11,6 @@ node_modules
 !.vscode/settings.json
 !.vscode/extensions.json
 !.vscode/tasks.json
-
-# Misc
-_sass/vendors
-assets/js/dist
 
 # Agent skills (installed locally via `npx skills add`)
 .agents

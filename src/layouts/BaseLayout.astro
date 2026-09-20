@@ -34,6 +34,12 @@ const ogImage = image ? new URL(image, Astro.site) : undefined;
     {ogImage && <meta property="og:image" content={ogImage} />}
 
     <link rel="icon" href="/assets/images/avatar.svg" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Real Robot"
+      href={new URL('feed.xml', Astro.site)}
+    />
 
     <!--
       Pretendard, loaded as a dynamic subset so only the glyphs a page uses are

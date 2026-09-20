@@ -82,6 +82,10 @@
 | `src/styles/toc.css` | 목차 |
 | `src/styles/shelf.css` | 홈 연재 선반 |
 | `src/data/categoryLabels.ts` | 목록의 카테고리 배지 라벨 |
+| `src/data/site.ts` | 제목·설명·저자·댓글 설정. 옛 `_config.yml`의 잔여물 |
+| `src/components/Comments.astro` | utterances |
+| `src/pages/feed.xml.ts` | RSS |
+| `src/pages/sitemap.xml.ts` | 사이트맵. 손으로 쓴 이유는 아래 |
 | `scripts/*.mjs` | 검증기 (7절) |
 | `public/assets/images/` | 이미지. `/assets/images/...`로 서빙된다 |
 
@@ -99,8 +103,8 @@
 
 **이것이 이 저장소에서 가장 강한 제약이다.**
 
-`_config.yml`의 utterances 설정이 `issue_term: "pathname"`이다. 댓글이 **경로로**
-GitHub 이슈에 묶여 있다. 경로가 바뀌면 그 글의 댓글이 사라진 것처럼 보이고,
+`src/data/site.ts`의 utterances 설정이 `issueTerm: 'pathname'`이다. 댓글이
+**경로로** GitHub 이슈에 묶여 있다. 경로가 바뀌면 그 글의 댓글이 사라진 것처럼 보이고,
 **로컬 빌드로는 절대 안 잡힌다.**
 
 - **글 URL은 파일명에서 나온다.** front matter의 `title`이 아니다.
@@ -115,7 +119,12 @@ GitHub 이슈에 묶여 있다. 경로가 바뀌면 그 글의 댓글이 사라�
   아니라 제자리 전환이다.** 목록 다섯 줄을 넘기려고 페이지를 다시 불러오면
   읽던 자리를 버리게 된다. `/pageN/` 라우트는 매니페스트에 있으므로 남겨두고,
   그 페이지에서 시작할 위치만 정한다.
-- `url-manifest.txt`는 Jekyll이 서빙하던 URL 80개다. **이주의 합격 기준**이며
+- **사이트맵은 손으로 쓴다.** `@astrojs/sitemap`은 `sitemap-index.xml` +
+  `sitemap-0.xml`을 내는데 Jekyll은 단일 `/sitemap.xml`을 서빙했다. 파일명이
+  매니페스트에 있으므로 우리가 바꿀 수 있는 게 아니다.
+- **`/googlefb039f8f0fba8c33.html`은 Google Search Console 인증 파일이다.**
+  지우면 검색 등록이 풀린다. `public/`에 있다.
+- `url-manifest.txt`는 Jekyll이 서빙하던 URL 81개다. **이주의 합격 기준**이며
   `scripts/check-urls.mjs`가 대조한다.
 
 ---
@@ -246,10 +255,13 @@ npm run verify   # 빌드 + 검증기 3개. 보고 전에 이걸 돌린다
 | `check-slugs.mjs` | `slugify`가 기존 카테고리·태그 URL을 못 만드는 것 |
 | `check-contrast.mjs` | 색을 눈으로 골라 대비가 무너지는 것 |
 
-> **현재 `verify`는 `check-urls`에서 실패한다.** `/feed.xml`, `/sitemap.xml`,
-> `/robots.txt` 셋이 아직 없기 때문이고, 이주 5단계에서 만들면 통과한다.
-> 그때까지는 **missing이 정확히 그 셋인지**를 확인하면 된다. 다른 URL이 섞여
-> 나오면 실제 문제다.
+`check-urls.mjs`는 셋을 본다: 매니페스트 URL 81개, 사이트맵이 모든 페이지를
+담았는지, **내부 링크가 전부 실재하는 곳을 가리키는지.** 마지막 것은 Jekyll
+워크플로의 `htmlproofer`가 하던 일이다.
+
+**배포 워크플로가 이 셋을 돌리고, 실패하면 배포를 중단한다.** 라우트 하나가
+조용히 빌드에서 빠지면 그 글의 댓글이 같이 사라지는데 화면에는 아무 이상이
+없기 때문이다.
 
 작업을 끝냈다고 보고하기 전에:
 

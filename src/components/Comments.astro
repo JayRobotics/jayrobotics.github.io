@@ -1,0 +1,59 @@
+---
+import { site } from '../data/site';
+
+const { repo, issueTerm, label, themes } = site.comments;
+---
+
+<section class="mt-12 border-t border-[var(--border)] pt-8" aria-label="댓글">
+  <div
+    data-comments
+    data-repo={repo}
+    data-issue-term={issueTerm}
+    data-label={label}
+    data-theme-light={themes.light}
+    data-theme-dark={themes.dark}
+  >
+  </div>
+</section>
+
+<script>
+  /*
+    utterances finds each thread by `issue-term: pathname`, so the comments on
+    a post are tied to its URL. This is the reason the URL manifest is the hard
+    constraint it is: move a post and its thread is orphaned, and nothing about
+    the page will look wrong.
+
+    The script is injected rather than written inline because the iframe has to
+    be told which theme to start in, and told again whenever the reader flips
+    it.
+  */
+  const mount = document.querySelector<HTMLElement>('[data-comments]');
+  if (mount && !mount.dataset.loaded) {
+    mount.dataset.loaded = 'true';
+
+    const themeFor = () =>
+      document.documentElement.dataset.theme === 'dark'
+        ? mount.dataset.themeDark!
+        : mount.dataset.themeLight!;
+
+    const script = document.createElement('script');
+    script.src = 'https://utteranc.es/client.js';
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.setAttribute('repo', mount.dataset.repo!);
+    script.setAttribute('issue-term', mount.dataset.issueTerm!);
+    script.setAttribute('label', mount.dataset.label!);
+    script.setAttribute('theme', themeFor());
+    mount.appendChild(script);
+
+    // The header toggle announces the change; the iframe cannot see a data
+    // attribute on our document.
+    document.addEventListener('themechange', () => {
+      const frame = mount.querySelector<HTMLIFrameElement>('.utterances-frame');
+      frame?.contentWindow?.postMessage(
+        { type: 'set-theme', theme: themeFor() },
+        'https://utteranc.es',
+      );
+    });
+  }
+</script>
