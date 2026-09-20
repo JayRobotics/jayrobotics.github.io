@@ -13,7 +13,7 @@ const posts = [...group.posts].sort((a, b) => a.data.date.valueOf() - b.data.dat
 
 <section class="mb-10">
   <div class="mb-3 flex items-baseline justify-between gap-4">
-    <h2 class="text-base font-semibold text-[var(--text-muted)]">
+    <h2 class="text-[0.9rem] font-semibold text-[var(--text-muted)]">
       최근 연재{' '}
       <a href={`/categories/${group.slug}/`} class="text-[var(--accent)]">{group.name}</a>
     </h2>

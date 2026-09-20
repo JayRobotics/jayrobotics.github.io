@@ -58,15 +58,15 @@
   height: 100%;
   padding: 0.6rem;
   border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: var(--surface);
+  border-radius: 0.4rem;
+  background: transparent;
   color: var(--text);
   text-decoration: none;
   transition: border-color 0.18s ease, transform 0.18s ease;
 }
 
 .shelf-card:hover {
-  border-color: var(--accent-line);
+  border-color: var(--accent);
   transform: translateY(-2px);
 }
 

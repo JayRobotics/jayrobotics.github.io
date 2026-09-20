@@ -14,7 +14,7 @@ const { group } = Astro.props;
 <PageLayout title={`${group.name} - Real Robot`}>
   <header class="mb-6">
     <h1 class="text-2xl font-bold tracking-tight text-[var(--heading)]">{group.name}</h1>
-    <p class="mt-1 text-sm text-[var(--text-muted)]">글 {group.posts.length}개</p>
+    <p class="num mt-2 text-[0.82rem] text-[var(--text-muted)]">{group.posts.length} posts</p>
   </header>
 
   <PostList posts={group.posts} />

@@ -17,7 +17,7 @@ const categories = groupByCategory(await getPosts());
             class="flex items-baseline justify-between gap-3 rounded-lg border border-[var(--border)] px-4 py-3 transition-colors hover:border-[var(--accent)]"
           >
             <span class="font-medium text-[var(--text)]">{c.name}</span>
-            <span class="text-sm text-[var(--text-muted)]">{c.posts.length}</span>
+            <span class="num text-sm text-[var(--text-muted)]">{String(c.posts.length).padStart(2, "0")}</span>
           </a>
         </li>
       ))

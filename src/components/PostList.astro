@@ -21,13 +21,13 @@ const { posts, showPin = true } = Astro.props;
         >
           <time
             datetime={post.data.date.toISOString()}
-            class="text-sm tabular-nums text-[var(--text-muted)]"
+            class="num text-[0.82rem] text-[var(--text-muted)]"
           >
             {formatDate(post.data.date)}
           </time>
 
           {category ? (
-            <span class="justify-self-start rounded border border-[var(--border)] px-2 py-0.5 text-xs whitespace-nowrap text-[var(--text-muted)]">
+            <span class="num justify-self-start border-s-2 border-[var(--border-strong)] ps-2 text-[0.72rem] tracking-wide whitespace-nowrap text-[var(--text-muted)] uppercase">
               {categoryLabels[category] ?? category}
             </span>
           ) : (

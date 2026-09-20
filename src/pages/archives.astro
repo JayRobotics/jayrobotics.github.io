@@ -25,8 +25,8 @@ for (const post of posts) {
     [...years.entries()].map(([year, list]) => (
       <section class="mb-10">
         <h2 class="mb-3 text-lg font-semibold text-[var(--heading)]">
-          {year}
-          <span class="ms-2 text-sm font-normal text-[var(--text-muted)]">{list.length}</span>
+          <span class="num">{year}</span>
+          <span class="num ms-3 text-sm font-normal text-[var(--text-muted)]">{list.length}</span>
         </h2>
 
         <ul class="border-t border-[var(--border)]">
@@ -38,7 +38,7 @@ for (const post of posts) {
               >
                 <time
                   datetime={post.data.date.toISOString()}
-                  class="shrink-0 text-sm tabular-nums text-[var(--text-muted)]"
+                  class="num shrink-0 text-[0.82rem] text-[var(--text-muted)]"
                 >
                   {formatDate(post.data.date)}
                 </time>
