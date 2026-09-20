@@ -4,6 +4,13 @@ import { visit } from 'unist-util-visit';
 // add noise where the author simply had nothing to say about the image.
 const GENERIC_ALT = new Set(['image', 'img', 'images', 'picture', 'photo', 'screenshot', 'preview image']);
 
+// Caption rule: a number is written by hand, and only when it points at
+// something outside the post. The algorithm posts cite the figure numbers of
+// the textbook they study from; the lecture captures in the RL posts point at
+// nothing, so they stay unnumbered rather than carrying a count for the sake
+// of looking formal. Same for tables: the sentence above them already says
+// what they are.
+//
 // A caption that opens with its own label, e.g. "그림 6.3 한 자릿수 정렬" or
 // "표 2. 시프트 테이블". The number is never generated here: the algorithm
 // posts carry the figure numbers of the textbook they are studying from, and
