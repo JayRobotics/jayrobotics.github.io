@@ -3,7 +3,10 @@
  * so that file can be deleted without losing anything that still matters.
  */
 export const site = {
+  /** Shown in <title> and the feed. */
   title: 'Real Robot',
+  /** The wordmark in the header. */
+  brand: 'JayRobotics',
   description: 'Physical AI를 공부하며 남기는 기록. 강화학습, 알고리즘, 로보틱스 노트.',
   author: 'JaeJin Hwang',
   lang: 'ko-KR',

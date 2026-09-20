@@ -2,6 +2,8 @@
 // Chirpy's left sidebar is the single strongest "this is Chirpy" signal, so
 // navigation moves to a top bar. Stage 4 does the real design work; this has
 // to be legible and complete, not finished.
+import { site } from '../data/site';
+
 const nav = [
   { href: '/', label: '홈' },
   { href: '/categories/', label: '카테고리' },
@@ -20,7 +22,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       href="/"
       class="text-xl font-bold tracking-tight text-[var(--heading)] sm:text-2xl"
     >
-      JayRobotic
+      {site.brand}
     </a>
 
     <nav class="flex items-center gap-1 text-sm" aria-label="주 메뉴">
