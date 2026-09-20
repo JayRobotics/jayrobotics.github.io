@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './toc.css';
+@import './shelf.css';
 
 /* Chirpy toggled `html[data-mode]`; this keeps a manual switch possible while
    still following the OS by default. The inline script in BaseLayout resolves
@@ -57,6 +58,21 @@
 
 html {
   color-scheme: light;
+}
+
+/* Jumping to a heading loses the reader's place in a long post; gliding keeps
+   the relationship between where they were and where they landed. Native CSS
+   rather than script, and off for anyone who asked for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Leaves the heading clear of the top edge on arrival, and matches the 120px
+   line the table of contents uses to decide what is being read. */
+.prose :is(h2, h3, h4, h5, h6) {
+  scroll-margin-top: 6rem;
 }
 
 [data-theme='dark'] {

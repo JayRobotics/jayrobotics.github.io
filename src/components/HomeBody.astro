@@ -1,6 +1,7 @@
 ---
 import PostList from './PostList.astro';
-import { groupByCategory, stripSeriesPrefix, type Post } from '../lib/posts';
+import SeriesShelf from './SeriesShelf.astro';
+import { groupByCategory, type Post } from '../lib/posts';
 
 interface Props {
   /** The posts on this page of the list. */
@@ -20,7 +21,6 @@ const categories = groupByCategory(all);
 const byDate = [...all].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const shelfName = byDate[0]?.data.categories[0];
 const shelf = categories.find((c) => c.name === shelfName);
-const shelfPosts = shelf ? [...shelf.posts].sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf()) : [];
 
 const pageHref = (n: number) => (n === 1 ? '/' : `/page${n}/`);
 ---
@@ -49,52 +49,7 @@ const pageHref = (n: number) => (n === 1 ? '/' : `/page${n}/`);
         </nav>
       </section>
 
-      {shelf && shelfPosts.length > 1 && (
-        <section class="mb-10">
-          <div class="mb-3 flex items-baseline justify-between gap-4">
-            <h2 class="text-base font-semibold text-[var(--text-muted)]">
-              최근 연재{' '}
-              <a href={`/categories/${shelf.slug}/`} class="text-[var(--accent)]">
-                {shelf.name}
-              </a>
-            </h2>
-            <a
-              href={`/categories/${shelf.slug}/`}
-              class="shrink-0 text-sm text-[var(--text-muted)] hover:text-[var(--accent)]"
-            >
-              전체 보기
-            </a>
-          </div>
-
-          <ol class="flex snap-x gap-3 overflow-x-auto pb-1">
-            {shelfPosts.map((post) => (
-              <li class="w-50 shrink-0 snap-start">
-                <a
-                  href={`/posts/${post.id}/`}
-                  class="flex h-full flex-col gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 transition-transform hover:-translate-y-0.5 motion-reduce:transform-none"
-                >
-                  {post.data.image ? (
-                    <img
-                      src={post.data.image.path}
-                      alt=""
-                      loading="lazy"
-                      class="aspect-video w-full rounded object-cover"
-                    />
-                  ) : (
-                    <span class="aspect-video w-full rounded bg-[var(--border)]" aria-hidden="true" />
-                  )}
-                  <span
-                    class="line-clamp-2 text-sm leading-snug font-medium text-[var(--text)]"
-                    style="word-break: keep-all"
-                  >
-                    {stripSeriesPrefix(post.data.title)}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+      {shelf && shelf.posts.length > 1 && <SeriesShelf group={shelf} />}
     </>
   )
 }
