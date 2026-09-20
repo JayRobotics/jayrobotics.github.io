@@ -6,6 +6,12 @@
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @theme {
+  /* The TOC rail needs room for itself, a matching spacer on the left and the
+     article between them. Below this the rail has nowhere to go, so the post
+     page falls back to a collapsed list. Chirpy switched at 1200px too; xl
+     (1280px) hid it on ordinary 1280-wide laptops. */
+  --breakpoint-toc: 75rem;
+
   --font-sans:
     'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
     system-ui, 'Segoe UI', sans-serif;
