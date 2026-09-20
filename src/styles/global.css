@@ -332,14 +332,22 @@ body {
 }
 
 .prose figcaption {
-  margin-top: 0.7rem;
-  padding-top: 0.55rem;
-  border-top: 1px solid var(--border);
+  margin-top: 0.65rem;
   color: var(--text-muted);
   font-size: 0.82rem;
   line-height: 1.5;
   text-align: center;
   word-break: keep-all;
+}
+
+/* The caption's own label, when it has one. Set in the mono face so "그림 6.3"
+   sits apart from the description without a second colour. */
+.prose .figure-label {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--heading);
 }
 
 /* Shiki records the language but never shows it. The wrapper exists because a

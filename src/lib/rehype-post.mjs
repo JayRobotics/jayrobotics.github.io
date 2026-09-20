@@ -4,6 +4,13 @@ import { visit } from 'unist-util-visit';
 // add noise where the author simply had nothing to say about the image.
 const GENERIC_ALT = new Set(['image', 'img', 'images', 'picture', 'photo', 'screenshot', 'preview image']);
 
+// A caption that opens with its own label, e.g. "그림 6.3 한 자릿수 정렬" or
+// "표 2. 시프트 테이블". The number is never generated here: the algorithm
+// posts carry the figure numbers of the textbook they are studying from, and
+// renumbering them 1, 2, 3 would break the reference back to the book. The
+// label is only pulled out so it can be set apart from the description.
+const CAPTION_LABEL = /^((?:그림|표|Fig\.?|Figure|Table)\s*[\d.]*[\d])\.?\s+(.+)$/;
+
 /**
  * Two things a set of research notes needs and markdown does not give:
  *
@@ -17,6 +24,23 @@ const GENERIC_ALT = new Set(['image', 'img', 'images', 'picture', 'photo', 'scre
  *    but never shows it, and an absolutely positioned label inside a scrolling
  *    <pre> scrolls away with the code, so the block needs a wrapper.
  */
+function captionNode(alt) {
+  const m = alt.match(CAPTION_LABEL);
+  const children = m
+    ? [
+        {
+          type: 'element',
+          tagName: 'span',
+          properties: { className: ['figure-label'] },
+          children: [{ type: 'text', value: m[1] }],
+        },
+        { type: 'text', value: ' ' + m[2] },
+      ]
+    : [{ type: 'text', value: alt }];
+
+  return { type: 'element', tagName: 'figcaption', properties: {}, children };
+}
+
 export function rehypePost() {
   return (tree) => {
     visit(tree, 'element', (node, index, parent) => {
@@ -35,12 +59,7 @@ export function rehypePost() {
           properties: { className: ['figure'] },
           children: [
             node,
-            {
-              type: 'element',
-              tagName: 'figcaption',
-              properties: {},
-              children: [{ type: 'text', value: alt }],
-            },
+            captionNode(alt),
           ],
         };
         return;
