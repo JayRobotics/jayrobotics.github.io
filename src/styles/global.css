@@ -315,3 +315,59 @@ body {
 .prose pre.astro-code {
   background: var(--surface);
 }
+
+/* ==========================================================================
+   Figures and code blocks
+   Both are produced by src/lib/rehype-post.mjs.
+   ========================================================================== */
+
+/* The alt text in these posts is already a caption ("그림 6.3 한 자릿수 정렬").
+   Showing it is how a figure is labelled in a paper. */
+.prose figure {
+  margin: 2.25rem 0;
+}
+
+.prose figure img {
+  margin: 0 auto;
+}
+
+.prose figcaption {
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+  word-break: keep-all;
+}
+
+/* Shiki records the language but never shows it. The wrapper exists because a
+   label positioned inside a scrolling <pre> scrolls away with the code. */
+.code-block {
+  position: relative;
+  margin: 1.75rem 0;
+}
+
+.code-block > pre {
+  margin: 0;
+  padding-top: 2.1rem;
+}
+
+.code-lang {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 1;
+  padding: 0.35rem 0.75rem;
+  border-inline-end: 1px solid var(--border);
+  border-block-end: 1px solid var(--border);
+  border-start-start-radius: 0.4rem;
+  border-end-end-radius: 0.4rem;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

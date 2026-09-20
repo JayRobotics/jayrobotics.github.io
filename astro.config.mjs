@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeRaw from 'rehype-raw';
+import { rehypePost } from './src/lib/rehype-post.mjs';
 
 export default defineConfig({
   site: 'https://jayrobotics.github.io',
@@ -21,7 +23,11 @@ export default defineConfig({
       // MathJax rendered without complaint. KaTeX still renders it; `strict`
       // only decides whether it warns. Verify how it looks before changing the
       // post itself.
-      rehypePlugins: [[rehypeKatex, { strict: false }]],
+      // Astro runs rehype-raw after user plugins, so raw HTML written in a
+      // post is still an unparsed string when rehypePost sees it, and these
+      // posts write their images as <img> tags. Running it here first turns
+      // them into real nodes; Astro's own pass then finds nothing left to do.
+      rehypePlugins: [rehypeRaw, [rehypeKatex, { strict: false }], rehypePost],
     }),
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },
