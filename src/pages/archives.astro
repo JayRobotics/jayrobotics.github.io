@@ -1,0 +1,55 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { getPostsByDate, formatDate, stripSeriesPrefix } from '../lib/posts';
+
+// Archives are chronological, so pinning is deliberately ignored here.
+const posts = await getPostsByDate();
+
+const years = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = Number(
+    new Intl.DateTimeFormat('en', { timeZone: 'Asia/Seoul', year: 'numeric' }).format(
+      post.data.date,
+    ),
+  );
+  const list = years.get(year);
+  if (list) list.push(post);
+  else years.set(year, [post]);
+}
+---
+
+<PageLayout title="아카이브 - Real Robot">
+  <h1 class="mb-8 text-2xl font-bold tracking-tight text-[var(--heading)]">아카이브</h1>
+
+  {
+    [...years.entries()].map(([year, list]) => (
+      <section class="mb-10">
+        <h2 class="mb-3 text-lg font-semibold text-[var(--heading)]">
+          {year}
+          <span class="ms-2 text-sm font-normal text-[var(--text-muted)]">{list.length}</span>
+        </h2>
+
+        <ul class="border-t border-[var(--border)]">
+          {list.map((post) => (
+            <li class="border-b border-[var(--border)]">
+              <a
+                href={`/posts/${post.id}/`}
+                class="flex items-baseline gap-3 px-1 py-3 transition-colors hover:bg-[var(--surface)]"
+              >
+                <time
+                  datetime={post.data.date.toISOString()}
+                  class="shrink-0 text-sm tabular-nums text-[var(--text-muted)]"
+                >
+                  {formatDate(post.data.date)}
+                </time>
+                <span class="text-[var(--text)]" style="word-break: keep-all">
+                  {stripSeriesPrefix(post.data.title)}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</PageLayout>

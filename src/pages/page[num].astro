@@ -1,0 +1,31 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import HomeBody from '../components/HomeBody.astro';
+import { getPosts, POSTS_PER_PAGE } from '../lib/posts';
+
+// Jekyll paginated to /page2/, not /page/2/. A param inside the filename
+// reproduces that exactly; page 1 stays at the site root.
+export async function getStaticPaths() {
+  const all = await getPosts();
+  const totalPages = Math.ceil(all.length / POSTS_PER_PAGE);
+
+  return Array.from({ length: totalPages - 1 }, (_, i) => {
+    const page = i + 2;
+    return {
+      params: { num: String(page) },
+      props: {
+        all,
+        page,
+        totalPages,
+        posts: all.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE),
+      },
+    };
+  });
+}
+
+const { posts, all, page, totalPages } = Astro.props;
+---
+
+<PageLayout title={`Real Robot - ${page}페이지`}>
+  <HomeBody posts={posts} all={all} page={page} totalPages={totalPages} />
+</PageLayout>

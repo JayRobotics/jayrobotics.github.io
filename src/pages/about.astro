@@ -1,0 +1,14 @@
+---
+import { getEntry, render } from 'astro:content';
+import PageLayout from '../layouts/PageLayout.astro';
+
+const entry = await getEntry('tabs', 'about');
+if (!entry) throw new Error('_tabs/about.md is missing');
+const { Content } = await render(entry);
+---
+
+<PageLayout title="정보 - Real Robot">
+  <article class="prose">
+    <Content />
+  </article>
+</PageLayout>

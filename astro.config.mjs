@@ -25,6 +25,12 @@ export default defineConfig({
     }),
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },
+      // Without this Shiki writes `background-color:#fff` inline on every
+      // <pre>, which no stylesheet can beat cleanly and which puts a white
+      // slab back on an off-white page. `false` makes it emit only the
+      // --shiki-light / --shiki-dark custom properties, leaving the surface
+      // to our own token.
+      defaultColor: false,
     },
   },
 

@@ -1,0 +1,52 @@
+---
+import { formatDate, stripSeriesPrefix, type Post } from '../lib/posts';
+import { categoryLabels } from '../data/categoryLabels';
+
+interface Props {
+  posts: Post[];
+  showPin?: boolean;
+}
+
+const { posts, showPin = true } = Astro.props;
+---
+
+<nav class="border-t border-[var(--border)]" aria-label="글 목록">
+  {
+    posts.map((post) => {
+      const category = post.data.categories[0];
+      return (
+        <a
+          href={`/posts/${post.id}/`}
+          class="grid grid-cols-[max-content_1fr] items-center gap-x-3 gap-y-1 border-b border-[var(--border)] px-1 py-3 transition-colors hover:bg-[var(--surface)] sm:grid-cols-[max-content_4.5rem_1fr] sm:gap-x-4"
+        >
+          <time
+            datetime={post.data.date.toISOString()}
+            class="text-sm tabular-nums text-[var(--text-muted)]"
+          >
+            {formatDate(post.data.date)}
+          </time>
+
+          {category ? (
+            <span class="justify-self-start rounded border border-[var(--border)] px-2 py-0.5 text-xs whitespace-nowrap text-[var(--text-muted)]">
+              {categoryLabels[category] ?? category}
+            </span>
+          ) : (
+            <span aria-hidden="true" />
+          )}
+
+          <span
+            class="col-span-2 text-[var(--text)] sm:col-span-1 sm:truncate"
+            style="word-break: keep-all"
+          >
+            {stripSeriesPrefix(post.data.title)}
+            {showPin && post.data.pin && (
+              <span class="ms-1 text-xs text-[var(--accent)]" title="고정된 글">
+                ★
+              </span>
+            )}
+          </span>
+        </a>
+      );
+    })
+  }
+</nav>

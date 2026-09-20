@@ -1,0 +1,21 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts, groupByTag } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const groups = groupByTag(await getPosts());
+  return groups.map((g) => ({ params: { slug: g.slug }, props: { group: g } }));
+}
+
+const { group } = Astro.props;
+---
+
+<PageLayout title={`${group.name} - Real Robot`}>
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold tracking-tight text-[var(--heading)]">{group.name}</h1>
+    <p class="mt-1 text-sm text-[var(--text-muted)]">글 {group.posts.length}개</p>
+  </header>
+
+  <PostList posts={group.posts} />
+</PageLayout>

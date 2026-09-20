@@ -14,18 +14,25 @@
     Consolas, monospace;
 }
 
-/* One accent, defined for both modes. Both pass WCAG AA on their own surface. */
+/* One accent, defined for both modes. Both pass WCAG AA on their own surface.
+
+   Neither mode uses a pure value. #ffffff on a page of long-form technical
+   reading glares; the neutrals here are very slightly cool so they sit in the
+   same family as the blue accent rather than fighting it.
+
+   Contrast against --bg: text 13:1, muted 5.1:1, accent 5.5:1. */
 :root {
   --accent: #0b5ed7;
   --accent-soft: rgb(11 94 215 / 7%);
   --accent-line: rgb(11 94 215 / 25%);
 
-  --bg: #ffffff;
-  --surface: #f6f8fa;
-  --border: #e8eaed;
-  --text: #34343c;
-  --text-muted: #6b6b73;
-  --heading: #22222a;
+  --bg: #f7f8fa;
+  /* Recessed, not elevated: code, tables and the TOC sit *into* the page. */
+  --surface: #edf0f4;
+  --border: #dde2e9;
+  --text: #33343b;
+  --text-muted: #656974;
+  --heading: #1f2026;
 }
 
 [data-theme='dark'] {
@@ -227,9 +234,18 @@ body {
   }
 }
 
-/* Shiki emits both themes; show the one that matches. */
+/* With `defaultColor: false` Shiki only publishes the two colour variables,
+   so the theme is picked here and the surface stays ours. */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+}
+
 [data-theme='dark'] .astro-code,
 [data-theme='dark'] .astro-code span {
-  color: var(--shiki-dark) !important;
-  background-color: var(--shiki-dark-bg) !important;
+  color: var(--shiki-dark);
+}
+
+.prose pre.astro-code {
+  background: var(--surface);
 }

@@ -1,0 +1,139 @@
+---
+import PostList from './PostList.astro';
+import { groupByCategory, stripSeriesPrefix, type Post } from '../lib/posts';
+
+interface Props {
+  /** The posts on this page of the list. */
+  posts: Post[];
+  /** Every post, for the category counts and the shelf. */
+  all: Post[];
+  page: number;
+  totalPages: number;
+}
+
+const { posts, all, page, totalPages } = Astro.props;
+
+const categories = groupByCategory(all);
+
+// The series on the shelf is whichever category was posted in most recently.
+// Nothing marks a series by hand, so nothing has to be maintained.
+const byDate = [...all].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const shelfName = byDate[0]?.data.categories[0];
+const shelf = categories.find((c) => c.name === shelfName);
+const shelfPosts = shelf ? [...shelf.posts].sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf()) : [];
+
+const pageHref = (n: number) => (n === 1 ? '/' : `/page${n}/`);
+---
+
+{
+  page === 1 && (
+    <>
+      <section class="mb-10">
+        <h1
+          class="text-2xl leading-snug font-bold tracking-tight text-[var(--heading)]"
+          style="word-break: keep-all"
+        >
+          Physical AI를 공부하며 남기는 기록
+        </h1>
+
+        <nav class="mt-4 flex flex-wrap gap-2" aria-label="카테고리">
+          {categories.map((c) => (
+            <a
+              href={`/categories/${c.slug}/`}
+              class="inline-flex items-baseline gap-1.5 rounded-full border border-[var(--border)] px-3 py-1 text-sm text-[var(--text-muted)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            >
+              {c.name}
+              <span class="text-xs opacity-75">{c.posts.length}</span>
+            </a>
+          ))}
+        </nav>
+      </section>
+
+      {shelf && shelfPosts.length > 1 && (
+        <section class="mb-10">
+          <div class="mb-3 flex items-baseline justify-between gap-4">
+            <h2 class="text-base font-semibold text-[var(--text-muted)]">
+              최근 연재{' '}
+              <a href={`/categories/${shelf.slug}/`} class="text-[var(--accent)]">
+                {shelf.name}
+              </a>
+            </h2>
+            <a
+              href={`/categories/${shelf.slug}/`}
+              class="shrink-0 text-sm text-[var(--text-muted)] hover:text-[var(--accent)]"
+            >
+              전체 보기
+            </a>
+          </div>
+
+          <ol class="flex snap-x gap-3 overflow-x-auto pb-1">
+            {shelfPosts.map((post) => (
+              <li class="w-50 shrink-0 snap-start">
+                <a
+                  href={`/posts/${post.id}/`}
+                  class="flex h-full flex-col gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 transition-transform hover:-translate-y-0.5 motion-reduce:transform-none"
+                >
+                  {post.data.image ? (
+                    <img
+                      src={post.data.image.path}
+                      alt=""
+                      loading="lazy"
+                      class="aspect-video w-full rounded object-cover"
+                    />
+                  ) : (
+                    <span class="aspect-video w-full rounded bg-[var(--border)]" aria-hidden="true" />
+                  )}
+                  <span
+                    class="line-clamp-2 text-sm leading-snug font-medium text-[var(--text)]"
+                    style="word-break: keep-all"
+                  >
+                    {stripSeriesPrefix(post.data.title)}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+    </>
+  )
+}
+
+<section>
+  <div class="mb-3 flex items-baseline justify-between gap-4">
+    <h2 class="text-base font-semibold text-[var(--text-muted)]">
+      {page === 1 ? '최근 글' : '글 목록'}
+    </h2>
+    <a href="/archives/" class="shrink-0 text-sm text-[var(--text-muted)] hover:text-[var(--accent)]">
+      아카이브
+    </a>
+  </div>
+
+  <PostList posts={posts} />
+</section>
+
+{
+  totalPages > 1 && (
+    <nav class="mt-8 flex items-center justify-between text-sm" aria-label="페이지">
+      {page > 1 ? (
+        <a href={pageHref(page - 1)} class="text-[var(--accent)]">
+          이전
+        </a>
+      ) : (
+        <span class="text-[var(--text-muted)] opacity-50">이전</span>
+      )}
+
+      <span class="text-[var(--text-muted)]">
+        {page} / {totalPages}
+      </span>
+
+      {page < totalPages ? (
+        <a href={pageHref(page + 1)} class="text-[var(--accent)]">
+          다음
+        </a>
+      ) : (
+        <span class="text-[var(--text-muted)] opacity-50">다음</span>
+      )}
+    </nav>
+  )
+}

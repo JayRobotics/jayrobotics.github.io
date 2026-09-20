@@ -39,4 +39,20 @@ const posts = defineCollection({
   }),
 });
 
-export const collections = { posts };
+// The About page keeps living in _tabs/about.md so there is one copy of it.
+const tabs = defineCollection({
+  loader: glob({
+    pattern: 'about.md',
+    base: './_tabs',
+    generateId: ({ entry }) => entry.replace(/\.md$/, ''),
+  }),
+  schema: z
+    .object({
+      title: z.string().optional(),
+      order: z.number().optional(),
+      icon: z.string().optional(),
+    })
+    .passthrough(),
+});
+
+export const collections = { posts, tabs };

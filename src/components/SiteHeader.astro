@@ -1,0 +1,71 @@
+---
+// Chirpy's left sidebar is the single strongest "this is Chirpy" signal, so
+// navigation moves to a top bar. Stage 4 does the real design work; this has
+// to be legible and complete, not finished.
+const nav = [
+  { href: '/', label: '홈' },
+  { href: '/categories/', label: '카테고리' },
+  { href: '/tags/', label: '태그' },
+  { href: '/archives/', label: '아카이브' },
+  { href: '/about/', label: '정보' },
+];
+
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class="border-b border-[var(--border)]">
+  <div class="mx-auto flex h-16 max-w-3xl items-center justify-between gap-4 px-4">
+    <a href="/" class="font-bold tracking-tight text-[var(--heading)]">Real Robot</a>
+
+    <nav class="flex items-center gap-1 text-sm" aria-label="주 메뉴">
+      {
+        nav.slice(1).map((item) => (
+          <a
+            href={item.href}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+            class:list={[
+              'rounded px-2 py-1 transition-colors',
+              isActive(item.href)
+                ? 'text-[var(--accent)]'
+                : 'text-[var(--text-muted)] hover:text-[var(--accent)]',
+            ]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+
+      <button
+        type="button"
+        id="theme-toggle"
+        class="ms-1 rounded px-2 py-1 text-[var(--text-muted)] transition-colors hover:text-[var(--accent)]"
+        aria-label="라이트/다크 모드 전환"
+      >
+        <span aria-hidden="true" data-theme-icon></span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const button = document.getElementById('theme-toggle');
+  const icon = button?.querySelector('[data-theme-icon]');
+
+  const paint = () => {
+    if (icon) icon.textContent = document.documentElement.dataset.theme === 'dark' ? '☾' : '☀';
+  };
+
+  button?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      // Private browsing can refuse writes; the toggle still works for this page.
+    }
+    paint();
+  });
+
+  paint();
+</script>

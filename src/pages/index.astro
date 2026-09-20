@@ -1,25 +1,12 @@
 ---
-// Stage 1 scaffold: proves the collection loads and the ids match Jekyll.
-import { getCollection } from 'astro:content';
-import '../styles/global.css';
+import PageLayout from '../layouts/PageLayout.astro';
+import HomeBody from '../components/HomeBody.astro';
+import { getPosts, POSTS_PER_PAGE } from '../lib/posts';
 
-const posts = (await getCollection('posts')).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const all = await getPosts();
+const totalPages = Math.ceil(all.length / POSTS_PER_PAGE);
 ---
 
-<html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <title>Real Robot</title>
-  </head>
-  <body>
-    <ul>
-      {posts.map((p) => (
-        <li>
-          <a href={`/posts/${p.id}/`}>{p.id} - {p.data.title}</a>
-        </li>
-      ))}
-    </ul>
-  </body>
-</html>
+<PageLayout title="Real Robot">
+  <HomeBody posts={all.slice(0, POSTS_PER_PAGE)} all={all} page={1} totalPages={totalPages} />
+</PageLayout>
