@@ -1,1 +1,235 @@
 @import 'tailwindcss';
+
+/* Chirpy toggled `html[data-mode]`; this keeps a manual switch possible while
+   still following the OS by default. The inline script in BaseLayout resolves
+   which one applies before first paint. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, 'Segoe UI', sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'Cascadia Mono', 'JetBrains Mono', Menlo,
+    Consolas, monospace;
+}
+
+/* One accent, defined for both modes. Both pass WCAG AA on their own surface. */
+:root {
+  --accent: #0b5ed7;
+  --accent-soft: rgb(11 94 215 / 7%);
+  --accent-line: rgb(11 94 215 / 25%);
+
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --border: #e8eaed;
+  --text: #34343c;
+  --text-muted: #6b6b73;
+  --heading: #22222a;
+}
+
+[data-theme='dark'] {
+  --accent: #6ea8fe;
+  --accent-soft: rgb(110 168 254 / 10%);
+  --accent-line: rgb(110 168 254 / 28%);
+
+  --bg: #1b1b1e;
+  --surface: #232327;
+  --border: #2c2d2d;
+  --text: #afb0b1;
+  --text-muted: #868686;
+  --heading: #d4d4d6;
+}
+
+html {
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  letter-spacing: -0.003em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Post body
+   Ported from the Chirpy design layer so the move is not a visual regression.
+   ========================================================================== */
+
+.prose {
+  font-size: 1.02rem;
+  line-height: 1.8;
+
+  /* Without this Korean wraps mid-word. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.prose p {
+  margin-bottom: 1.15rem;
+}
+
+.prose :is(h1, h2, h3, h4) {
+  color: var(--heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* The section break has to read as a break; these posts are long. */
+.prose h2 {
+  margin-top: 5rem;
+  margin-bottom: 1.25rem;
+  padding-left: 0.85rem;
+  border-left: 3px solid var(--accent);
+  font-size: 1.55rem;
+  line-height: 1.4;
+}
+
+.prose > h2:first-child {
+  margin-top: 0;
+}
+
+.prose h3 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.28rem;
+}
+
+.prose h4 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.prose :is(ul, ol) {
+  margin-bottom: 1.15rem;
+  padding-left: 1.4rem;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li {
+  line-height: 1.75;
+}
+
+.prose li + li {
+  margin-top: 0.3rem;
+}
+
+/* Posts used runs of <br> for spacing; this is what replaced them. */
+.prose img {
+  display: block;
+  margin: 2rem auto;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+}
+
+.prose a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-line);
+  transition: border-color 0.18s ease;
+}
+
+.prose a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.prose mark {
+  background: var(--accent-soft);
+  color: inherit;
+  padding: 0.05em 0.25em;
+  border-radius: 0.15rem;
+}
+
+.prose blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1.1rem;
+  border-left: 3px solid var(--accent-line);
+  color: var(--text-muted);
+}
+
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--surface);
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+}
+
+.prose pre {
+  margin: 1.5rem 0;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  overflow-x: auto;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.prose table {
+  display: block;
+  width: 100%;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+
+.prose :is(th, td) {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+}
+
+.prose th {
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.prose hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Long display math should scroll rather than widen the page. */
+.prose .katex-display {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+@media (width < 576px) {
+  .prose h2 {
+    margin-top: 3.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose a {
+    transition: none;
+  }
+}
+
+/* Shiki emits both themes; show the one that matches. */
+[data-theme='dark'] .astro-code,
+[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}

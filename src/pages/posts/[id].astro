@@ -1,0 +1,72 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+
+// The stored instant is correct; the displayed date has to be Seoul's.
+const posted = new Intl.DateTimeFormat('ko-KR', {
+  timeZone: 'Asia/Seoul',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(post.data.date);
+
+// h2 and h3 only. Deeper levels make the list longer than the post is tall.
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+<BaseLayout
+  title={post.data.title}
+  image={post.data.image?.path}
+>
+  <main class="mx-auto w-full max-w-3xl px-4 py-12">
+    <header class="mb-10">
+      <h1
+        class="text-3xl leading-snug font-bold tracking-tight text-[var(--heading)]"
+        style="word-break: keep-all"
+      >
+        {post.data.title}
+      </h1>
+
+      <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--text-muted)]">
+        <time datetime={post.data.date.toISOString()}>{posted}</time>
+        {post.data.categories.map((c) => (
+          <a
+            href={`/categories/${c.toLowerCase().replace(/\s+/g, '-')}/`}
+            class="hover:text-[var(--accent)]"
+          >
+            {c}
+          </a>
+        ))}
+      </div>
+    </header>
+
+    {toc.length > 1 && post.data.toc && (
+      <nav
+        aria-label="목차"
+        class="mb-10 rounded border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
+      >
+        <ul class="space-y-1 text-sm">
+          {toc.map((h) => (
+            <li class={h.depth === 3 ? 'ps-4' : ''}>
+              <a href={`#${h.slug}`} class="text-[var(--text-muted)] hover:text-[var(--accent)]">
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    <article class="prose">
+      <Content />
+    </article>
+  </main>
+</BaseLayout>

@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title,
+  description = 'Physical AI를 공부하며 남기는 기록. 강화학습, 알고리즘, 로보틱스 노트.',
+  image,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site) : undefined;
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+
+    <link rel="icon" href="/assets/images/avatar.svg" />
+
+    <!--
+      Pretendard, loaded as a dynamic subset so only the glyphs a page uses are
+      fetched. A Korean body font is not optional here: the usual system stacks
+      fall back to a Chinese face for Hangul.
+    -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+
+    <!-- Resolve the theme before first paint so dark mode does not flash white. -->
+    <script is:inline>
+      (() => {
+        const saved = (() => {
+          try {
+            return localStorage.getItem('theme');
+          } catch {
+            return null;
+          }
+        })();
+        const system = window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
+        document.documentElement.dataset.theme = saved ?? system;
+      })();
+    </script>
+  </head>
+
+  <body>
+    <slot />
+  </body>
+</html>
