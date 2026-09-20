@@ -2,6 +2,7 @@
 import PostList from './PostList.astro';
 import SeriesShelf from './SeriesShelf.astro';
 import { groupByCategory, POSTS_PER_PAGE, type Post } from '../lib/posts';
+import { site } from '../data/site';
 
 interface Props {
   /** Every post. The list pages in place rather than by navigation. */
@@ -31,12 +32,11 @@ const latest = byDate[0];
           class="text-3xl leading-[1.3] font-bold tracking-tight text-[var(--heading)] sm:text-4xl"
           style="word-break: keep-all"
         >
-          Physical AI를 공부하며 남기는 기록
+          {site.tagline}
         </h1>
 
         <p class="mt-4 max-w-[34rem] text-[var(--text-muted)]" style="word-break: keep-all">
-          강화학습으로 정책을 학습시키는 일과, 그 정책이 실제 하드웨어 위에서 무너지지 않게
-          만드는 일 사이의 간극에 관심이 있습니다.
+          {site.intro}
         </p>
 
         {/* Counts read against a rule rather than inside pills. The figure is

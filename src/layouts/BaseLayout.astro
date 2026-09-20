@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import 'katex/dist/katex.min.css';
+import { site } from '../data/site';
 
 interface Props {
   title: string;
@@ -10,7 +11,7 @@ interface Props {
 
 const {
   title,
-  description = 'Physical AI를 공부하며 남기는 기록. 강화학습, 알고리즘, 로보틱스 노트.',
+  description = site.description,
   image,
 } = Astro.props;
 
