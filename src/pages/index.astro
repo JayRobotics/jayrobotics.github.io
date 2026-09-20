@@ -1,0 +1,25 @@
+---
+// Stage 1 scaffold: proves the collection loads and the ids match Jekyll.
+import { getCollection } from 'astro:content';
+import '../styles/global.css';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>Real Robot</title>
+  </head>
+  <body>
+    <ul>
+      {posts.map((p) => (
+        <li>
+          <a href={`/posts/${p.id}/`}>{p.id} - {p.data.title}</a>
+        </li>
+      ))}
+    </ul>
+  </body>
+</html>

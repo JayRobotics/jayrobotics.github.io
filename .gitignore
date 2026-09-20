@@ -3,6 +3,10 @@
 vendor
 Gemfile.lock
 
+# Astro build output
+dist
+.astro
+
 # Jekyll cache
 .jekyll-cache
 .jekyll-metadata
@@ -13,7 +17,6 @@ _site
 
 # NPM dependencies
 node_modules
-package-lock.json
 
 # IDE configurations
 .idea
