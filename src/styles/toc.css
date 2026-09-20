@@ -48,17 +48,17 @@
 }
 
 .toc-rail .toc-link[data-level='1'] {
-  padding-inline-start: 1.6rem;
+  padding-inline-start: 2.1rem;
   font-size: 0.8rem;
 }
 
 .toc-rail .toc-link[data-level='2'] {
-  padding-inline-start: 2.45rem;
+  padding-inline-start: 3.35rem;
   font-size: 0.78rem;
 }
 
 .toc-rail .toc-link[data-level='3'] {
-  padding-inline-start: 3.3rem;
+  padding-inline-start: 4.6rem;
   font-size: 0.78rem;
 }
 
@@ -147,15 +147,19 @@
 /* Clipped rather than removed. `display` cannot be transitioned, so toggling
    it made the text appear in one frame while the panel was still widening,
    which is most of what read as noisy. */
+/* Collapsed the text contributes no height, so the dashes stay tightly
+   spaced; it is clipped rather than removed because `display` cannot be
+   transitioned. Long titles wrap rather than truncate, which also means the
+   panel never overflows sideways. */
 .toc-edge .toc-text {
-  max-width: 0;
+  width: 100%;
+  max-height: 0;
   opacity: 0;
   overflow: hidden;
   font-size: 0.8rem;
   line-height: 1.45;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  transition: max-width 0.18s ease-out, opacity 0.14s ease-out;
+  word-break: keep-all;
+  transition: max-height 0.18s ease-out, opacity 0.14s ease-out;
 }
 
 /* --- Edge, opened --------------------------------------------------------- */
@@ -165,9 +169,10 @@
 .toc-edge:hover,
 .toc-edge:focus-within,
 .toc-edge.is-open {
-  width: 13.5rem;
+  width: 14rem;
   background: var(--bg);
   border-color: var(--border);
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -184,8 +189,9 @@
 .toc-edge:focus-within .toc-link,
 .toc-edge.is-open .toc-link {
   justify-content: flex-start;
+  align-items: flex-start;
   gap: 0;
-  padding-block: 0.12rem;
+  padding-block: 0.18rem;
   border-inline-start: 2px solid transparent;
   padding-inline-start: 0.5rem;
 }
@@ -193,19 +199,19 @@
 .toc-edge:hover .toc-link[data-level='1'],
 .toc-edge:focus-within .toc-link[data-level='1'],
 .toc-edge.is-open .toc-link[data-level='1'] {
-  padding-inline-start: 1.15rem;
+  padding-inline-start: 1.85rem;
 }
 
 .toc-edge:hover .toc-link[data-level='2'],
 .toc-edge:focus-within .toc-link[data-level='2'],
 .toc-edge.is-open .toc-link[data-level='2'] {
-  padding-inline-start: 1.8rem;
+  padding-inline-start: 3.1rem;
 }
 
 .toc-edge:hover .toc-link[data-level='3'],
 .toc-edge:focus-within .toc-link[data-level='3'],
 .toc-edge.is-open .toc-link[data-level='3'] {
-  padding-inline-start: 2.45rem;
+  padding-inline-start: 4.35rem;
 }
 
 .toc-edge:hover .toc-link.is-active,
@@ -224,7 +230,7 @@
 .toc-edge:hover .toc-text,
 .toc-edge:focus-within .toc-text,
 .toc-edge.is-open .toc-text {
-  max-width: 11rem;
+  max-height: 5rem;
   opacity: 1;
 }
 

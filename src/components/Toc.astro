@@ -84,20 +84,34 @@ const levelOf = (depth: number) => present.indexOf(depth);
     update();
   }
 
-  // Touch has no hover, so the dashes would never open. There the first tap
-  // opens the panel instead of following a link; taps after that behave
-  // normally, and a tap outside closes it.
   const edge = document.querySelector<HTMLElement>('.toc-edge');
-  if (edge && !matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    edge.addEventListener('click', (event) => {
-      if (!edge.classList.contains('is-open')) {
-        event.preventDefault();
-        edge.classList.add('is-open');
-      }
-    });
+  if (edge) {
+    const canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    document.addEventListener('click', (event) => {
-      if (!edge.contains(event.target as Node)) edge.classList.remove('is-open');
-    });
+    if (canHover) {
+      // Clicking a link leaves focus on it, and :focus-within then holds the
+      // panel open after the pointer has gone. Dropping focus once the jump is
+      // under way lets it close on its own.
+      edge.addEventListener('click', (event) => {
+        const link = (event.target as HTMLElement).closest('a');
+        if (link) (link as HTMLElement).blur();
+      });
+    } else {
+      // Touch has no hover, so the dashes would never open. There the first
+      // tap opens the panel instead of following a link; taps after that
+      // behave normally, and a tap outside closes it.
+      edge.addEventListener('click', (event) => {
+        if (!edge.classList.contains('is-open')) {
+          event.preventDefault();
+          edge.classList.add('is-open');
+          return;
+        }
+        if ((event.target as HTMLElement).closest('a')) edge.classList.remove('is-open');
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!edge.contains(event.target as Node)) edge.classList.remove('is-open');
+      });
+    }
   }
 </script>

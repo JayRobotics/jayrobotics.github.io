@@ -43,6 +43,19 @@ function sourceHeadings(body: string): { depth: number; text: string }[] {
 }
 
 /**
+ * `1.`, `1-1.`, `1-1-1.`, and the same without the trailing period, which one
+ * post uses. The space afterwards is what keeps "3가지 reward type" out while
+ * letting "3-2 공간 복잡도" through.
+ */
+const NUMBERED = /^\d+(?:-\d+)*\.?(?:\s|$)/;
+
+/**
+ * Kept despite carrying no number. A reference list is part of the outline of
+ * a set of notes, not an aside, and it is always a top-level section.
+ */
+const ALWAYS = /^(references?|참고\s*(문헌|자료))$/i;
+
+/**
  * Pairs Astro's headings with the source text by position. Both lists are in
  * document order and filtered the same way, so index alignment holds; if it
  * ever does not, the rendered text is used unchanged rather than mislabelling
@@ -56,5 +69,9 @@ export function tocHeadings(headings: MarkdownHeading[], body: string | undefine
   if (source.length !== items.length) return items;
   if (source.some((s, i) => s.depth !== items[i].depth)) return items;
 
-  return items.map((h, i) => ({ ...h, text: source[i].text || h.text }));
+  // Only numbered headings. The contents list is the document's outline, and
+  // an unnumbered aside is not part of that outline.
+  return items
+    .map((h, i) => ({ ...h, text: source[i].text || h.text }))
+    .filter((h) => NUMBERED.test(h.text) || ALWAYS.test(h.text.trim()));
 }
