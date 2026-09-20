@@ -8,7 +8,7 @@ interface Props {
   body?: string;
   /**
    * `rail` - the static column in the right gutter on wide screens.
-   * `edge` - dashes pinned to the window edge that open on hover or tap, for
+   * `edge` - marks pinned to the window edge that open on hover or tap, for
    *          viewports with no gutter to spare.
    */
   variant: 'rail' | 'edge';
@@ -28,38 +28,70 @@ const levelOf = (depth: number) => present.indexOf(depth);
 ---
 
 {
-  items.length > 1 && (
-    <nav aria-label="목차" class:list={[variant === 'edge' ? 'toc-edge' : 'toc-rail', className]}>
-      <ul>
-        {items.map((h) => (
-          <li>
-            <a
-              href={`#${h.slug}`}
-              class="toc-link"
-              data-toc-link={h.slug}
-              data-level={levelOf(h.depth)}
-            >
-              <span class="toc-dash" aria-hidden="true" />
-              <span class="toc-text">{h.text}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
+  items.length > 1 &&
+    (variant === 'rail' ? (
+      <nav aria-label="목차" class:list={['toc-rail', className]}>
+        <ul>
+          {items.map((h) => (
+            <li>
+              <a
+                href={`#${h.slug}`}
+                class="toc-link"
+                data-toc-link={h.slug}
+                data-level={levelOf(h.depth)}
+              >
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    ) : (
+      /*
+        Two layers rather than one list that transforms. A single list has to
+        choose between staying compact when closed and never reflowing: either
+        the text takes up height while hidden, leaving the marks sparse, or it
+        does not and every row unfolds on open. Keeping them separate means
+        nothing ever moves; only opacity crosses between the two.
+      */
+      <nav aria-label="목차" class:list={['toc-edge', className]}>
+        <div class="toc-edge-marks" aria-hidden="true">
+          {items.map((h) => (
+            <span class="toc-mark" data-toc-mark={h.slug} data-level={levelOf(h.depth)} />
+          ))}
+        </div>
+
+        <div class="toc-edge-panel">
+          <ul>
+            {items.map((h) => (
+              <li>
+                <a
+                  href={`#${h.slug}`}
+                  class="toc-link"
+                  data-toc-link={h.slug}
+                  data-level={levelOf(h.depth)}
+                >
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </nav>
+    ))
 }
 
 <script>
-  // One observer drives every copy of the list, so the rail and the edge
-  // dashes cannot disagree about where the reader is.
-  const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
-  if (links.length > 0) {
-    const bySlug = new Map<string, HTMLAnchorElement[]>();
-    for (const a of links) {
-      const slug = a.dataset.tocLink!;
+  // One observer drives every copy, so the rail, the marks and the panel
+  // cannot disagree about where the reader is.
+  const targets = document.querySelectorAll<HTMLElement>('[data-toc-link], [data-toc-mark]');
+  if (targets.length > 0) {
+    const bySlug = new Map<string, HTMLElement[]>();
+    for (const el of targets) {
+      const slug = el.dataset.tocLink ?? el.dataset.tocMark!;
       const list = bySlug.get(slug);
-      if (list) list.push(a);
-      else bySlug.set(slug, [a]);
+      if (list) list.push(el);
+      else bySlug.set(slug, [el]);
     }
 
     const headings = [...bySlug.keys()]
@@ -71,8 +103,8 @@ const levelOf = (depth: number) => present.indexOf(depth);
       const passed = headings.filter((h) => h.getBoundingClientRect().top < 120);
       const slug = passed.at(-1)?.id ?? headings[0]?.id;
       if (!slug || slug === active) return;
-      if (active) for (const a of bySlug.get(active) ?? []) a.classList.remove('is-active');
-      for (const a of bySlug.get(slug) ?? []) a.classList.add('is-active');
+      if (active) for (const el of bySlug.get(active) ?? []) el.classList.remove('is-active');
+      for (const el of bySlug.get(slug) ?? []) el.classList.add('is-active');
       active = slug;
     };
 
@@ -86,20 +118,16 @@ const levelOf = (depth: number) => present.indexOf(depth);
 
   const edge = document.querySelector<HTMLElement>('.toc-edge');
   if (edge) {
-    const canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
-
-    if (canHover) {
-      // Clicking a link leaves focus on it, and :focus-within then holds the
-      // panel open after the pointer has gone. Dropping focus once the jump is
-      // under way lets it close on its own.
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      // Clicking a link leaves focus on it, and :focus-within would then hold
+      // the panel open after the pointer has gone.
       edge.addEventListener('click', (event) => {
         const link = (event.target as HTMLElement).closest('a');
         if (link) (link as HTMLElement).blur();
       });
     } else {
-      // Touch has no hover, so the dashes would never open. There the first
-      // tap opens the panel instead of following a link; taps after that
-      // behave normally, and a tap outside closes it.
+      // Touch has no hover, so the marks would never open. There the first tap
+      // opens the panel; a tap on a link, or outside it, closes it again.
       edge.addEventListener('click', (event) => {
         if (!edge.classList.contains('is-open')) {
           event.preventDefault();
